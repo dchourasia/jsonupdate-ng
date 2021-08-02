@@ -1,0 +1,22 @@
+{
+    "name" : "users",
+    "per_page" : 12,
+    "company" : { "name" : "anything", "office" : "anywhere" },
+    "total_pages" : "<<<DELETE>>>",
+    "data" : [
+        {
+            "id": 100,
+			"full_name": "deepak chourasia"
+        }
+    ],
+    "$.limit" : 6,
+    "$.data[*].designation" : "developer",
+    "$.data[?(@.id > 3)].salary" : "$100,000",
+    "$.data[100]" : {
+			"id": 101,
+			"email": "deepak.chourasia@gmail.com",
+			"first_name": "Deepak",
+			"last_name": "Chourasia"
+    },
+    "$.data[?(@.id > 4 & @.id < 10)].avatar" : "<<<DELETE>>>"
+}
