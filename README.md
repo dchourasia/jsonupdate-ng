@@ -125,7 +125,7 @@ contents of head json (comments are just to clarify the example, please remove t
 			"first_name": "Deepak",
 			"last_name": "Chourasia"
     },
-    "$.data[?(@.id > 4)].avatar" : "<<<DELETE>>>"                // this will delete avtar node from the object inside data list which has id > 4
+    "$.data[?(@.id > 4 & @.id < 10)].avatar" : "<<<DELETE>>>"                // this will delete avtar node from the object inside data list which has id > 4
 }
 ```
 
