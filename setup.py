@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="jsonupdate-ng",
-    version="1.0.1",
+    version="1.0.2",
     author="Deepak Chourasia",
     author_email="deepak.chourasia@gmail.com",
     description="A Next Generation Library to update any json document",

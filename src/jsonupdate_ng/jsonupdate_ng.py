@@ -6,15 +6,27 @@ from jsonpath_ng.ext.filter import Filter
 class jsonupdate_ng:
     deleteNotifiers = ['<<<DELETE>>>', '@@DELETE@@', '___DELETE___']
 
+    SUPPORTED_CLASSES = ['dict', 'dotdict', 'commentedmap', 'list', 'commentedseq']
+    DICT_CLASSES = ['dict', 'dotdict', 'commentedmap']
+    LIST_CLASSES = ['list', 'commentedseq']
+
+    def class_family(obj):
+        type_name = obj.__class__.__name__.lower()
+        if type_name in jsonupdate_ng.DICT_CLASSES:
+            return jsonupdate_ng.DICT_CLASSES[0]
+        elif type_name in jsonupdate_ng.LIST_CLASSES:
+            return jsonupdate_ng.LIST_CLASSES[0]
+        else:
+            return None
+
     def updateJson(base, head, meta={}, genericJsonpath='$', path='$'):
 
         try:
-            if head.__class__.__name__.lower() in ('dict', 'dotdict'):
+            if head.__class__.__name__.lower() in jsonupdate_ng.DICT_CLASSES:
                 for k, v1 in head.items():
                     if k in base:
                         v2 = base[k]
-                        if v1.__class__.__name__.lower() in (
-                        'list', 'dict', 'dotdict') and v1.__class__.__name__.lower() == v2.__class__.__name__.lower():
+                        if v1.__class__.__name__.lower() in jsonupdate_ng.SUPPORTED_CLASSES and jsonupdate_ng.class_family(v1) == jsonupdate_ng.class_family(v2):
                             base[k] = jsonupdate_ng.updateJson(base[k], head[k], meta=meta,
                                                                genericJsonpath=f'{genericJsonpath}.{k}',
                                                                path=f'{path}.{k}')
@@ -38,7 +50,7 @@ class jsonupdate_ng:
                         base = jsonupdate_ng.Add_Update_Delete_Node_AtGivenJsonPath(base, k, v1)
                     else:
                         base[k] = v1
-            elif head.__class__.__name__.lower() == 'list':
+            elif head.__class__.__name__.lower() in jsonupdate_ng.LIST_CLASSES:
                 if len(head) and len(base):
                     if 'listPatchScheme' in meta and genericJsonpath in meta['listPatchScheme']:
                         patchKey = meta['listPatchScheme'][genericJsonpath]
@@ -46,8 +58,7 @@ class jsonupdate_ng:
                         for index, item in enumerate(head):
                             if index not in listIndexMap:
                                 base.append(head[index])
-                            elif index in listIndexMap and item.__class__.__name__ in (
-                            'list', 'dict', 'dotdict') and item.__class__.__name__ == base[index].__class__.__name__:
+                            elif index in listIndexMap and item.__class__.__name__ in jsonupdate_ng.SUPPORTED_CLASSES and jsonupdate_ng.class_family(item) == jsonupdate_ng.class_family(base[index]):
                                 baseIndex = listIndexMap[index]
                                 base[baseIndex] = jsonupdate_ng.updateJson(base[baseIndex], head[index], meta=meta,
                                                                            genericJsonpath=f'{genericJsonpath}[*]',
@@ -60,8 +71,7 @@ class jsonupdate_ng:
                         for index, item in enumerate(head):
                             if index > len(base) - 1:
                                 base.append(head[index])
-                            elif item.__class__.__name__ in ('list', 'dict', 'dotdict') and item.__class__.__name__ == \
-                                    base[index].__class__.__name__:
+                            elif item.__class__.__name__ in jsonupdate_ng.SUPPORTED_CLASSES and jsonupdate_ng.class_family(item) == jsonupdate_ng.class_family(base[index]):
                                 base[index] = jsonupdate_ng.updateJson(base[index], head[index], meta=meta,
                                                                        genericJsonpath=f'{genericJsonpath}[{index}]',
                                                                        path=f'{path}[{index}]')
