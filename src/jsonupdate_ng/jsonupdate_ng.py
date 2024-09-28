@@ -91,13 +91,21 @@ class jsonupdate_ng:
 
     def generate_list_index_map(base, head, patchKey):
         map = {}
-        if base.__class__.__name__.lower() == 'list' and head.__class__.__name__.lower() == 'list':
+        key = patchKey['key']
+        patchKeyType = 'full'
+        if 'keyType' in patchKey and patchKey['keyType'].lower() == 'partial' and 'keySeparator' in patchKey:
+            patchKeyType = 'partial'
+        def applyPatchKey(value):
+            if patchKeyType == 'partial' and type(value) is str:
+                value = value.split(patchKey['keySeparator'])[0]
+            return value
+
+        if base.__class__.__name__.lower() in jsonupdate_ng.LIST_CLASSES and head.__class__.__name__.lower() in jsonupdate_ng.LIST_CLASSES:
             for headIndex, item in enumerate(head):
                 baseIndex = [baseIndex for baseIndex, item in enumerate(base) if
-                             base[baseIndex][patchKey] == head[headIndex][patchKey]]
+                             applyPatchKey(base[baseIndex][key]) == applyPatchKey(head[headIndex][key]) ]
                 if baseIndex:
                     map[headIndex] = baseIndex[0]
-
         return map
 
     def Add_Update_Delete_Node_AtGivenJsonPath(jsonDict, jsonPath, value):
